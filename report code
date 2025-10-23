@@ -1,0 +1,399 @@
+
+
+\documentclass[12pt,a4paper]{article}
+
+% Encoding and font
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% Page layout
+\usepackage{geometry}
+\geometry{margin=1in}
+
+% Math
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+% Graphics and formatting
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+% Optional (used in one only, but useful)
+\usepackage{fancyhdr}     % for headers/footers
+\usepackage{titlesec}     % for title formatting
+\usepackage{enumitem}     % for custom lists
+\usepackage{array}        % for extended table options
+\usepackage{longtable}    % for tables spanning multiple pages
+\usepackage{listings}     % for code formatting
+\usepackage{xcolor}       % for coloring code and other elements
+\usepackage{tikz}         % for drawing diagrams
+\usepackage{algorithm}    % for algorithm blocks
+\usepackage{algorithmic}  % for algorithm syntax
+\usepackage{float}        % to place figures/tables exactly
+\usepackage{titlesec}
+\usepackage[most]{tcolorbox}
+
+% Page style
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{CNN Image Classification}
+\lhead{\thepage}
+
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    basicstyle=\footnotesize\ttfamily,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!60!black}\itshape,
+    stringstyle=\color{red},
+    numberstyle=\tiny\color{gray},
+    numbers=left,
+    numbersep=5pt,
+    frame=single,
+    frameround=tttt,
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4,
+    captionpos=b,
+    morekeywords={self, True, False, None, async, await, def, class, import, from, as, with}
+}
+\lstset{style=pythonstyle}
+
+\begin{document}
+% Title Page
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    {\huge\textbf{University of Moratuwa}}\\[1cm]
+    {\Large\textbf{Department of Electronic and Telecommunication Engineering}}\\[0.5cm]
+    
+    \includegraphics[width=0.5\textwidth]{University_of_Moratuwa_logo (3).png}\\[1cm]
+    
+    {\large\textbf{EN3150 Assignment 03:}}\\[1cm]
+    {\LARGE\textbf{Simple convolutional neural network
+ to perform classification.}}\\[1cm]
+    {\large\textbf{Contributors}}\\[1cm]
+    {
+    
+    \begin{center}
+    \begin{tabular}{ll}
+        \textbf{Name} & \textbf{Index Number} \\
+        \hline
+        Dewasumithra M.P.O & 220112R \\
+        Dineshara M.C. & 220128V \\
+        Diunugala C.H. & 220143L \\
+        Fernando A.R.D & 220161N \\
+    \end{tabular}
+    \end{center}
+    
+    \vfill
+    }
+\end{titlepage}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+Convolutional Neural Networks (CNNs) are designed to make use of the spatial structure of image data, unlike traditional fully connected neural networks. They include special types of layers such as convolutional layers for feature extraction, pooling layers for reducing the image size, and fully connected layers for final classification.
+
+As a result, CNNs can automatically learn visual patterns at different levels — from simple edges and textures in early layers to more complex shapes and objects in deeper layers.
+
+In recent years, many advanced CNN architectures have been developed, including VGGNet, ResNet, and EfficientNet. These models have shown that using \textit{transfer learning} where a model pre-trained on a large dataset like ImageNet is fine-tuned for a new task can significantly improve performance. This approach is especially useful when the available data for a new problem is limited. Thanks to this, state-of-the-art image classification has become accessible even for small or specialized datasets.
+
+\section{Dataset Description}
+
+For this assignment, we selected the \textbf{MNIST Database of Handwritten Digits} from the UCI Machine Learning Repository. This dataset contains 70,000 grayscale images of handwritten digits, each with a resolution of 28×28 pixels. The images represent numerical digits from 0 to 9, resulting in a total of 10 distinct classes.
+
+The MNIST dataset presents several interesting challenges for image classification. Although the images are centered and size-normalized, there is noticeable variation in handwriting styles, stroke thickness, and alignment. These intra-class variations, along with subtle differences between certain digits , make the dataset a valuable benchmark for evaluating convolutional neural network (CNN) architectures.
+
+To ensure reliable model evaluation and to minimize overfitting during training, the dataset was divided into three subsets: 70\% for training, 15\% for validation, and 15\% for testing. The training set was used to optimize the model parameters, the validation set to tune hyperparameters and monitor generalization performance, and the test set to assess final model accuracy on unseen data.
+
+\section{Model Architecture}
+
+The Convolutional Neural Network (CNN) implemented for this assignment follows a simple yet effective architecture suitable for image classification tasks such as MNIST digit recognition. The architecture is summarized as follows:
+
+\begin{itemize}
+    \item \textbf{Input Layer:} Accepts grayscale images of size \(28 \times 28\) pixels.
+    
+    \item \textbf{Convolutional Layer 1:} 
+    Applies 32 filters of size \(3 \times 3\) with ReLU activation to extract low-level features such as edges and corners.
+    
+    \item \textbf{Pooling Layer 1:} 
+    A max-pooling operation with a \(2 \times 2\) window to reduce the spatial dimensions and retain the most important features.
+    
+    \item \textbf{Convolutional Layer 2:} 
+    Applies 64 filters of size \(3 \times 3\) with ReLU activation to learn more complex patterns and shapes.
+    
+    \item \textbf{Pooling Layer 2:} 
+    Another \(2 \times 2\) max-pooling layer to further reduce dimensionality and prevent overfitting.
+    
+    \item \textbf{Flatten Layer:} 
+    Flattens the 3D feature maps into a 1D feature vector for input to the fully connected layers.
+    
+    \item \textbf{Fully Connected Layer 1:} 
+    A dense layer with 128 neurons and ReLU activation to learn high-level feature representations.
+    
+    \item \textbf{Output Layer:} 
+    A fully connected layer with 10 neurons (one for each digit class), producing the final logits for classification. 
+    The \texttt{CrossEntropyLoss} function internally applies the softmax activation.
+\end{itemize}
+
+This architecture balances model simplicity and performance, making it well-suited for MNIST’s relatively small and clean dataset. The use of two convolutional–pooling blocks allows the network to extract hierarchical spatial features efficiently before classification.
+
+
+
+\section{Justification for Activation Function Selection}
+
+In this CNN, the \textbf{ReLU (Rectified Linear Unit)} activation function was used in all hidden and fully connected layers. It was chosen instead of older activation functions like sigmoid or tanh because it helps the model train faster and more efficiently.
+
+\begin{itemize}
+    \item \textbf{Efficient Gradient Flow:} 
+    ReLU is defined as \( f(x) = \max(0, x) \), which adds non-linearity without causing gradients to vanish. 
+    This allows deeper networks to learn more effectively compared to sigmoid or tanh, which can slow down training.
+
+    \item \textbf{Simple and Fast:} 
+    The ReLU function only involves a simple threshold operation. 
+    This makes it much faster to compute than sigmoid or tanh, which rely on exponential functions.
+
+    \item \textbf{Sparse Activation:} 
+    Since ReLU outputs zero for negative values, only a part of the network becomes active for a given input. 
+    This sparsity makes the model more efficient and helps it focus on the most important features.
+\end{itemize}
+
+\noindent \textbf{Comparison with Other Functions:} 
+Sigmoid and tanh map values to small fixed ranges (\(0\) to \(1\) or \(-1\) to \(1\)), which can cause very small gradients for large inputs. 
+This makes training deep networks slower and less effective.
+
+\vspace{
+\noindencmt \textbf{Limitations of ReLU:}
+
+\begin{itemize}
+    \item \textbf{Dying ReLU Problem:} 
+    Some neurons can stop activating completely if their inputs are always negative, reducing the model’s learning capacity.
+
+    \item \textbf{Unbounded Outputs:} 
+    ReLU outputs can grow very large for positive inputs, which may lead to unstable activations in some cases.
+\end{itemize}
+
+\noindent Overall, ReLU provides a good balance between performance and simplicity. 
+It is widely used in modern CNNs for image classification tasks like MNIST. 
+Variants such as Leaky ReLU can be considered in future work to reduce the dying ReLU issue and improve stability.
+
+
+\section{Model Training Results}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{adam.png}
+    \caption{Loss \& Accuracy of the Custom CNN }
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{image.png}
+    \caption{Confusion Matrix}
+    \label{fig:placeholder}
+\end{figure}
+
+\noindent The custom CNN model was trained for 20 epochs using the Adam optimizer. During training, the loss on the training set continued to decrease steadily, while the validation loss stopped improving after around 5 epochs. This indicates that the model began to \textbf{overfit}. Despite this, the model still achieved high accuracy on both training and validation sets, showing that it captures useful features but could benefit from additional regularization such as early stopping or increased dropout.
+
+\section{Optimizer Selection and Justification}
+
+In this experiment, the \textbf{Adam (Adaptive Moment Estimation)} optimizer was used to train the Convolutional Neural Network (CNN). Adam is widely used in deep learning because it combines fast learning, adaptive step sizes, and stable convergence across different types of models and datasets.
+
+\subsection{Comparison with Other Optimizers}
+
+\begin{itemize}
+    \item \textbf{Stochastic Gradient Descent (SGD):}
+    SGD updates model parameters using the gradient from the current batch. 
+    It is simple and memory-efficient but can take longer to converge, especially when gradients fluctuate.
+
+    \item \textbf{SGD with Momentum:}
+    This optimizer adds a momentum term that helps smooth out updates and move faster toward the minimum. 
+    However, it still depends on a fixed learning rate, which must be carefully tuned for good results.
+
+    \item \textbf{Adagrad:}
+    Adagrad adjusts the learning rate for each parameter automatically. 
+    It works well for sparse data and at the start of training but slows down later as its learning rate keeps decreasing.
+\end{itemize}
+
+\subsection{Advantages of Using Adam}
+
+\begin{itemize}
+    \item It automatically adjusts the learning rate for each parameter, making training stable and reliable.
+    \item It converges faster in the early stages compared to SGD.
+    \item It needs less manual tuning of hyperparameters.
+    \item It performs well even when gradients are noisy or the dataset is not perfectly consistent.
+\end{itemize}
+
+\noindent However, Adam also has some drawbacks:
+\begin{itemize}
+    \item It can sometimes reach a slightly worse final accuracy than SGD with momentum for image tasks.
+    \item Its adaptive updates may cause overfitting if regularization is not properly applied.
+\end{itemize}
+
+\noindent Overall, Adam was chosen for this experiment because it offers a good balance between speed, stability, and ease of use. 
+It is especially suitable for CNNs trained on the MNIST dataset, where quick and consistent convergence is important.
+
+\newpage
+
+
+\section{Learning Rate Selection Procedure}
+
+In this experiment, the learning rate was chosen through an \textbf{experimental tuning process}. 
+At first, the default learning rate value for the Adam optimizer provided by PyTorch was used:
+\[
+\eta_{\text{default}} = 0.001
+\]
+
+\noindent After testing this baseline, a few different learning rates were tried to see how they affected training speed, stability, and accuracy. 
+The following values were explored:
+
+\[
+\eta \in \{0.01, 0.001, 0.0005\}
+\]
+
+\noindent Each model was trained for the same number of epochs using identical settings (same architecture, batch size, and optimizer). 
+Training and validation losses were monitored to find which learning rate gave the most reliable results. 
+The selection was based on the following points:
+
+\begin{itemize}
+    \item \textbf{Stable Convergence:} The loss decreases smoothly without large jumps or divergence.
+    \item \textbf{Faster Training:} The network reaches good accuracy within fewer epochs.
+    \item \textbf{Better Validation Accuracy:} The model performs well on unseen data without overfitting.
+\end{itemize}
+
+\noindent From these experiments, a learning rate of \(\eta = 0.001\) was found to give the best overall performance. 
+Higher learning rates (like \(0.01\)) caused unstable training, while smaller ones (like \(0.0005\)) made learning too slow. 
+Therefore, the default value of \(0.001\) was selected as the final learning rate for all training runs.
+
+
+\section{Optimizer Performance Comparison}
+
+To evaluate the impact of different optimization algorithms on model performance, three optimizers were tested under identical network architectures and hyperparameter settings:
+\begin{enumerate}
+    \item Adam (Adaptive Moment Estimation)
+    \item Standard Stochastic Gradient Descent (SGD)
+    \item SGD with Momentum
+\end{enumerate}
+
+\subsection{Performance Metrics}
+
+The comparison was conducted using the following metrics:
+\begin{itemize}
+    \item \textbf{Training and Validation Loss:} Indicates the rate and stability of convergence during training.
+    \item \textbf{Training and Validation Accuracy:} Measures the model’s ability to correctly classify both seen and unseen data.
+    \item \textbf{Test Accuracy:} Provides an unbiased measure of final model generalization.
+    \item \textbf{Precision, Recall, and F1-Score:} Evaluate classification quality for each digit class, offering insight into per-class performance and potential bias.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Comparison of Optimizers on MNIST CNN Model}
+\begin{tabular}{lcccc}
+\hline
+\textbf{Optimizer} & \textbf{Train Acc.} & \textbf{Val Acc.} & \textbf{Test Acc.} & \textbf{Remarks} \\
+\hline
+SGD & 0.9761 & 0.9869 & 0.9841 & Slow but stable convergence \\
+SGD with Momentum & 0.9939 & 0.9923 & 0.9914 & Fast convergence, smooth training \\
+Adam & 0.9952 & 0.9922 & 0.9901 & Fastest early convergence, stable \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Comparison Using Precision, Recall, F1-Score, and Validation Loss}
+\begin{tabular}{lcccc}
+\hline
+\textbf{Optimizer} & \textbf{Precision (avg)} & \textbf{Recall (avg)} & \textbf{F1-Score (avg)} & \textbf{Final Val. Loss} \\
+\hline
+SGD & 0.9830 & 0.9840 & 0.9830 & 0.0471 \\
+SGD with Momentum & 0.9915 & 0.9914 & 0.9914 & 0.0270 \\
+Adam & 0.9900 & 0.9901 & 0.9900 & 0.0304 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{download (2).png}
+    \caption{Loss \& Accuracy of the Custom CNN using SGD}
+    \label{fig:placeholder}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{download (3).png}
+    \caption{Loss \& Accuracy of the Custom CNN using SGD with momentum}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsection{Analysis of Results}
+
+\textbf{1. Standard SGD:}  
+The standard SGD optimizer achieved a final test accuracy of 98.41\%. It showed gradual but steady improvement in training and validation accuracy over 20 epochs, indicating that the model was still learning and had not yet fully converged by the end of training. However, due to the fixed learning rate, the optimization process required more epochs to reach the same performance level as the adaptive methods.
+
+\textbf{2. SGD with Momentum:}  
+Introducing momentum (\( \mu = 0.9 \)) significantly accelerated convergence in the loss curve. 
+This variant achieved the highest test accuracy of 99.14\%, demonstrating improved generalization. 
+Unlike Adam, convergence in SGD with Momentum occurred more gradually, reaching optimal validation accuracy in the later epochs.
+
+\textbf{3. Adam:}  
+Adam reached rapid convergence within the first few epochs and achieved a high final test accuracy of 99.01\%. 
+The adaptive learning rate mechanism allowed it to quickly minimize training and validation losses during early training stages. 
+However, in the later epochs, the validation loss began to fluctuate slightly while the training loss continued to decrease, suggesting minor overfitting.\\ 
+
+\noindent While both Adam and SGD with Momentum provided excellent performance, several important distinctions were observed:
+\begin{itemize}
+    \item \textbf{Convergence Speed:} Adam achieved rapid convergence within the first 5--6 epochs, while SGD with Momentum converged more gradually, reaching its best performance near the final epochs. Standard SGD was still improving at epoch 20, indicating slower but steady learning.
+    \item \textbf{Generalization and Overfitting:} Adam’s faster convergence led to slight overfitting toward the end of training, as evidenced by the widening gap between training and validation losses. In contrast, SGD with Momentum generalized slightly better, maintaining consistent validation performance throughout training.
+    \item \textbf{Stability:} All three optimizers exhibited stable validation accuracy after epoch 10, though Adam’s validation loss showed minor fluctuations, while the momentum-based optimizer maintained smoother curves.
+\end{itemize}
+
+
+\section{Impact of the Momentum Parameter on Model Performance}
+
+\noindent In this experiment, the model was trained using both standard SGD (\( \mu = 0 \)) and SGD with Momentum (\( \mu = 0.9 \)) to assess the influence of the momentum parameter. Lower values (e.g., \( \mu = 0.5 \)) may not sufficiently smooth parameter updates, leading to slower convergence.  
+Conversely, excessively high values (e.g., \( \mu > 0.95 \)) can cause overshooting, where the optimizer oscillates around the optimum due to excessive inertia.
+
+
+\begin{itemize}
+    \item \textbf{Faster Convergence:}  
+    With momentum, the optimizer reached high accuracy levels in fewer epochs compared to standard SGD. The accumulated velocity helped the optimization process move consistently in relevant directions of the loss surface, allowing the model to converge more efficiently.
+
+    \item \textbf{Reduced Oscillations:}  
+    The addition of momentum smoothed out the updates, reducing noisy fluctuations in the loss curve that are often observed with plain SGD. This effect was particularly noticeable in the early training epochs, where standard SGD exhibited small but visible oscillations around local minima.
+
+    \item \textbf{Improved Generalization:}  
+    The model trained with momentum achieved a final test accuracy of 99.14\%, compared to 98.41\% with standard SGD. This improvement suggests that momentum enables the model to escape shallow minima and locate flatter, more generalizable regions in the loss landscape.
+\end{itemize}
+
+
+
+
+\section{Compare the custom model with state-of-the-art networks}
+Pretrained models such as \textbf{VGG16} and \textbf{ResNet50} (with ImageNet weights) were used for transfer learning and fine-tuning.
+
+\noindent
+\textbf{Approach:}
+\begin{itemize}
+    \item Convert grayscale $28\times28$ images to RGB and resize to $224\times224$.
+    \item Freeze most pretrained layers and train a small custom head.
+    \item Optionally unfreeze some deeper layers for fine-tuning with a small learning rate (e.g., $1\times10^{-4}$).
+\end{itemize}
+
+\noindent
+\textbf{Trade-offs:}
+\begin{itemize}
+    \item Pretrained networks provide strong feature representations and generally yield higher accuracy when data is limited or similar to ImageNet.
+    \item However, they are computationally heavier and may be excessive for MNIST, where a simple CNN can already achieve over 99\% accuracy.
+    \item Fine-tuning requires careful preprocessing and regularization to prevent overfitting.
+\end{itemize}
+
+\end{document}
+y
